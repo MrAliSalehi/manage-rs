@@ -1,0 +1,10 @@
+[package]
+name = "agent"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+machine-info = "1.0.9"
+
+[profile.release]
+opt-level = "s"
