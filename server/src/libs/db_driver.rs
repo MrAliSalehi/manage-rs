@@ -1,16 +1,19 @@
 use crate::models;
 use crate::models::server::Server;
+use crate::models::server_metric::ServerMetric;
 use crate::prelude::Res;
+use eyre::eyre;
 use itertools::Itertools;
+use native_db::db_type::KeyOptions;
 use native_db::{Database, Models};
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, LazyLock};
-use eyre::eyre;
 
 static MODELS: LazyLock<Models> = LazyLock::new(|| {
     let mut models = Models::new();
-    models.define::<models::server::Server>().unwrap();
+    models.define::<Server>().unwrap();
+    models.define::<ServerMetric>().unwrap();
     models
 });
 
@@ -63,9 +66,27 @@ impl DbDriver {
 
     pub fn delete_server(&self, id: String) -> Res {
         let r = self.db.rw_transaction()?;
-        let item = r.get().primary::<Server>(id)?.ok_or(eyre!("server not found"))?;
+        let item = r
+            .get()
+            .primary::<Server>(id)?
+            .ok_or(eyre!("server not found"))?;
         r.remove(item)?;
         r.commit()?;
         Ok(())
+    }
+
+    pub fn add_metric(&self, metric: ServerMetric) -> Res {
+        let t = self.db.rw_transaction()?;
+        t.upsert(metric)?;
+        t.commit()?;
+        Ok(())
+    }
+
+    pub fn get_server_metrics(&self, server_id: String) -> eyre::Result<Option<ServerMetric>> {
+        let t = self.db.r_transaction()?;
+
+        t.get()
+            .primary::<ServerMetric>(server_id)
+            .map_err(|e| eyre!("{}", e.to_string()))
     }
 }

@@ -63,11 +63,6 @@ impl AppConfig {
         Ok(())
     }
     
-    pub async fn check_agents(&self, agent_service: &AgentService) -> Res {
-        log::info!("initializing agents");
-        agent_service.build_agent().await
-    }
-    
     async fn init_config(&mut self) -> Res {
         log::info!("initializing the server");
         if self.pwd.is_empty() {

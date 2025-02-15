@@ -18,15 +18,22 @@ async fn run_agent(
     let server = state
         .db_driver
         .get_server_by_id(server_id)
-        .map_err(|e|ApiResponse::internal(&e.to_string()))?
+        .map_err(|e| ApiResponse::internal(&e.to_string()))?
         .ok_or(ApiResponse::bad_request("server not found"))?;
-    
+
     //todo check if agent already exist and/or you wanna "force" update it
-    
-    state.agent_service.upload_agent(server).await
-        .map_err(|e|ApiResponse::internal(&e.to_string()))?;
-    
-    
-    
-    Ok(ApiResponse::bad_request(""))
+
+    tokio::spawn(async move {
+        if let Err(e) = state.agent_service.upload_agent(&server).await {
+            log::error!("{e}");
+            return;
+        };
+
+        if let Err(e) = state.agent_service.init_agent(&server).await {
+            log::error!("{e}");
+            return;
+        };
+    });
+
+    Ok(ApiResponse::ok("", None))
 }

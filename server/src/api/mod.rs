@@ -1,3 +1,4 @@
+use crate::libs::agent_service::AgentService;
 use crate::libs::app_config::AppConfigRef;
 use crate::libs::shared_state::SharedState;
 use crate::prelude::Res;
@@ -8,15 +9,11 @@ use std::time::Duration;
 use tokio::net::TcpListener;
 use tower::{BoxError, ServiceBuilder};
 use tower_http::cors::{Any, CorsLayer};
-use crate::libs::agent_service::AgentService;
 
 pub mod components;
 const T_OUT: Duration = Duration::from_secs(10);
-pub async fn run(config: AppConfigRef) -> Res {
-    let agent_service = AgentService::new();
-    config.check_agents(&agent_service).await?;
-
-    let state = SharedState::new(config.clone(),agent_service).await;
+pub async fn run(state:SharedState) -> Res {
+    
     let helmet = build_helmet();
 
     let app = axum::Router::new()
