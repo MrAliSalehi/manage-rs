@@ -31,7 +31,6 @@ async fn run_agent(
 
         if let Err(e) = state.agent_service.init_agent(&server).await {
             log::error!("{e}");
-            return;
         };
     });
 

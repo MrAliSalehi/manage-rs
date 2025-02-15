@@ -1,5 +1,3 @@
-use crate::libs::api_response::ApiResponse;
-use crate::libs::app_config::AppConfigRef;
 use crate::libs::shared_state::SharedState;
 use crate::libs::TokenClaims;
 use crate::models::server_metric::ServerMetric;
@@ -40,7 +38,7 @@ pub fn run(state: SharedState) -> Res {
                     println!("Client ({}) connected", endpoint.addr());
                 }
                 NetEvent::Message(endpoint, input_data) => {
-                    let Ok(message) = bincode::deserialize::<ClientMessage>(&input_data) else {
+                    let Ok(message) = bincode::deserialize::<ClientMessage>(input_data) else {
                         log::info!(
                             "received unknown data from {endpoint}: {:?}",
                             String::from_utf8_lossy(input_data)
@@ -57,7 +55,6 @@ pub fn run(state: SharedState) -> Res {
                         process_message(state.clone(), &handler, message, endpoint, claims);
                     if let Err(e) = result {
                         log::error!("{e:?}");
-                        return;
                     }
                 }
                 NetEvent::Disconnected(endpoint) => {
@@ -110,7 +107,7 @@ fn authenticate_client(secret: &[u8], token: &Option<String>) -> Option<TokenCla
     Some(
         decode::<TokenClaims>(
             token.as_ref()?,
-            &DecodingKey::from_secret(&secret),
+            &DecodingKey::from_secret(secret),
             V.deref(),
         )
         .inspect_err(|e| log::error!("{e:?}"))

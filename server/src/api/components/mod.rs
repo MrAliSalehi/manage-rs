@@ -1,16 +1,9 @@
-use std::ops::Deref;
-use std::sync::LazyLock;
-use axum::extract::{Request, State};
-use axum::http::header;
 use crate::libs::shared_state::SharedState;
 use crate::middlewares::auth_mw::require_authentication;
-use axum::middleware::{from_fn_with_state, Next};
-use axum::response::{IntoResponse, Response};
+use axum::middleware::{from_fn_with_state};
+use axum::response::{IntoResponse};
 use axum::routing::get;
 use axum::Router;
-use jsonwebtoken::{decode, DecodingKey, Validation};
-use crate::libs::api_response::ApiResponse;
-use crate::libs::TokenClaims;
 
 pub mod agents;
 pub mod servers;

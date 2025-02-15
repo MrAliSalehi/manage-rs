@@ -29,12 +29,14 @@ fn main() -> eyre::Result<()> {
             return Ok(());
         }
     }
-    //let config = serde_json::from_str::<Config>(&std::fs::read_to_string(CONFIG_FILE_PATH)?)?;
 
-    // You can change the transport to Udp or Ws (WebSocket).
-    let endpoint = "127.0.0.1:3939";
-    let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NjQzOTEzLCJleHAiOjB9.RHOj1JdGfqzFo5L80WQc68_KqGibOkDrGXQIfa4i-0g";
-    //let endpoint = config.api_host;
+    let config = serde_json::from_str::<Config>(&std::fs::read_to_string(CONFIG_FILE_PATH)?)?;
+    let endpoint = &config.api_host;
+    let token = config.auth_token;
+
+    // for local testing
+    // let endpoint = "127.0.0.1:3939";
+    // let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzM5NjQzOTEzLCJleHAiOjB9.RHOj1JdGfqzFo5L80WQc68_KqGibOkDrGXQIfa4i-0g";
 
     let disconnected = Arc::new(AtomicBool::new(false));
     loop {

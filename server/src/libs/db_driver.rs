@@ -1,10 +1,8 @@
-use crate::models;
 use crate::models::server::Server;
 use crate::models::server_metric::ServerMetric;
 use crate::prelude::Res;
 use eyre::eyre;
 use itertools::Itertools;
-use native_db::db_type::KeyOptions;
 use native_db::{Database, Models};
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -81,7 +79,7 @@ impl DbDriver {
         t.commit()?;
         Ok(())
     }
-
+    #[allow(dead_code)]
     pub fn get_server_metrics(&self, server_id: String) -> eyre::Result<Option<ServerMetric>> {
         let t = self.db.r_transaction()?;
 

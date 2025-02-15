@@ -1,5 +1,3 @@
-use crate::libs::agent_service::AgentService;
-use crate::libs::app_config::AppConfigRef;
 use crate::libs::shared_state::SharedState;
 use crate::prelude::Res;
 use axum::http::StatusCode;
@@ -29,8 +27,8 @@ pub async fn run(state:SharedState) -> Res {
                 .layer(tower::buffer::BufferLayer::new(2048)),
         );
 
-    log::info!("api is running on {}", config.port);
-    let socket = TcpListener::bind(format!("0.0.0.0:{}", config.port)).await?;
+    log::info!("api is running on {}", state.app_config.port);
+    let socket = TcpListener::bind(format!("0.0.0.0:{}", state.app_config.port)).await?;
     axum::serve(socket, app).await?;
     Ok(())
 }

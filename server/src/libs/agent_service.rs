@@ -7,7 +7,7 @@ use eyre::eyre;
 use itertools::Itertools;
 use rust_embed::Embed;
 use std::borrow::Cow;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -71,7 +71,7 @@ impl AgentService {
         }
         let agent_binary = tokio::fs::read(agent_path).await?;
 
-        let mut ssh = ssh_session::connect(&server).await?;
+        let mut ssh = ssh_session::connect(server).await?;
 
         log::info!("agent path: {SS_AGENT_PATH}");
 
@@ -125,7 +125,7 @@ impl AgentService {
     }
 
     pub async fn init_agent(&self, server: &Server) -> Res {
-        let mut ssh = ssh_session::connect(&server).await?;
+        let mut ssh = ssh_session::connect(server).await?;
 
         let token = libs::create_jwt_token(&self.app_config.pwd, &server.id);
         let ip = public_ip::addr()
@@ -380,7 +380,7 @@ impl AgentService {
         Ok(false)
     }
 
-    async fn sync_agent_bin_path(&self, output_path: &PathBuf) -> eyre::Result<PathBuf> {
+    async fn sync_agent_bin_path(&self, output_path: &Path) -> eyre::Result<PathBuf> {
         let agent_path = output_path
             .join("x86_64-unknown-linux-musl")
             .join("release")
